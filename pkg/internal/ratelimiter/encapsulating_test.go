@@ -182,14 +182,14 @@ func TestEncapsulatingRateLimiterAdd(t *testing.T) {
 				rl1 := &fakeRateLimiter{name: "rl1"}
 				req1 := newReq("req-1")
 				return args{
-						op: addOp{key: "k1", rl: rl1, req: req1},
-					}, want{
-						state: state{
-							Inner:        map[reconcile.Request]string{req1: "k1"},
-							RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{"k1": rl1},
-							Requests:     map[string]sets.Set[reconcile.Request]{"k1": sets.New[reconcile.Request](req1)},
-						},
-					}
+					op: addOp{key: "k1", rl: rl1, req: req1},
+				}, want{
+					state: state{
+						Inner:        map[reconcile.Request]string{req1: "k1"},
+						RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{"k1": rl1},
+						Requests:     map[string]sets.Set[reconcile.Request]{"k1": sets.New[reconcile.Request](req1)},
+					},
+				}
 			},
 		},
 		"ExistingKeyNewRequest": {
@@ -200,15 +200,15 @@ func TestEncapsulatingRateLimiterAdd(t *testing.T) {
 				req1 := newReq("req-1")
 				req2 := newReq("req-2")
 				return args{
-						pre: []addOp{{key: "k1", rl: rl1, req: req1}},
-						op:  addOp{key: "k1", rl: rlIgnored, req: req2},
-					}, want{
-						state: state{
-							Inner:        map[reconcile.Request]string{req1: "k1", req2: "k1"},
-							RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{"k1": rl1},
-							Requests:     map[string]sets.Set[reconcile.Request]{"k1": sets.New[reconcile.Request](req1, req2)},
-						},
-					}
+					pre: []addOp{{key: "k1", rl: rl1, req: req1}},
+					op:  addOp{key: "k1", rl: rlIgnored, req: req2},
+				}, want{
+					state: state{
+						Inner:        map[reconcile.Request]string{req1: "k1", req2: "k1"},
+						RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{"k1": rl1},
+						Requests:     map[string]sets.Set[reconcile.Request]{"k1": sets.New[reconcile.Request](req1, req2)},
+					},
+				}
 			},
 		},
 		"ExistingKeySameRequest": {
@@ -218,15 +218,15 @@ func TestEncapsulatingRateLimiterAdd(t *testing.T) {
 				rlIgnored := &fakeRateLimiter{name: "rl-ignored"}
 				req1 := newReq("req-1")
 				return args{
-						pre: []addOp{{key: "k1", rl: rl1, req: req1}},
-						op:  addOp{key: "k1", rl: rlIgnored, req: req1},
-					}, want{
-						state: state{
-							Inner:        map[reconcile.Request]string{req1: "k1"},
-							RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{"k1": rl1},
-							Requests:     map[string]sets.Set[reconcile.Request]{"k1": sets.New[reconcile.Request](req1)},
-						},
-					}
+					pre: []addOp{{key: "k1", rl: rl1, req: req1}},
+					op:  addOp{key: "k1", rl: rlIgnored, req: req1},
+				}, want{
+					state: state{
+						Inner:        map[reconcile.Request]string{req1: "k1"},
+						RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{"k1": rl1},
+						Requests:     map[string]sets.Set[reconcile.Request]{"k1": sets.New[reconcile.Request](req1)},
+					},
+				}
 			},
 		},
 		"RequestMovesAndOldKeyDropped": {
@@ -236,18 +236,18 @@ func TestEncapsulatingRateLimiterAdd(t *testing.T) {
 				rl2 := &fakeRateLimiter{name: "rl2"}
 				req1 := newReq("req-1")
 				return args{
-						pre: []addOp{{key: "k1", rl: rl1, req: req1}},
-						op:  addOp{key: "k2", rl: rl2, req: req1},
-					}, want{
-						state: state{
-							Inner:        map[reconcile.Request]string{req1: "k2"},
-							RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{"k2": rl2},
-							Requests:     map[string]sets.Set[reconcile.Request]{"k2": sets.New[reconcile.Request](req1)},
-						},
-						forgetByRL: map[*fakeRateLimiter][]reconcile.Request{
-							rl1: {req1},
-						},
-					}
+					pre: []addOp{{key: "k1", rl: rl1, req: req1}},
+					op:  addOp{key: "k2", rl: rl2, req: req1},
+				}, want{
+					state: state{
+						Inner:        map[reconcile.Request]string{req1: "k2"},
+						RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{"k2": rl2},
+						Requests:     map[string]sets.Set[reconcile.Request]{"k2": sets.New[reconcile.Request](req1)},
+					},
+					forgetByRL: map[*fakeRateLimiter][]reconcile.Request{
+						rl1: {req1},
+					},
+				}
 			},
 		},
 		"RequestMovesButOldKeyRetained": {
@@ -258,24 +258,24 @@ func TestEncapsulatingRateLimiterAdd(t *testing.T) {
 				req1 := newReq("req-1")
 				req2 := newReq("req-2")
 				return args{
-						pre: []addOp{
-							{key: "k1", rl: rl1, req: req1},
-							{key: "k1", rl: rl1, req: req2},
+					pre: []addOp{
+						{key: "k1", rl: rl1, req: req1},
+						{key: "k1", rl: rl1, req: req2},
+					},
+					op: addOp{key: "k2", rl: rl2, req: req1},
+				}, want{
+					state: state{
+						Inner:        map[reconcile.Request]string{req1: "k2", req2: "k1"},
+						RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{"k1": rl1, "k2": rl2},
+						Requests: map[string]sets.Set[reconcile.Request]{
+							"k1": sets.New[reconcile.Request](req2),
+							"k2": sets.New[reconcile.Request](req1),
 						},
-						op: addOp{key: "k2", rl: rl2, req: req1},
-					}, want{
-						state: state{
-							Inner:        map[reconcile.Request]string{req1: "k2", req2: "k1"},
-							RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{"k1": rl1, "k2": rl2},
-							Requests: map[string]sets.Set[reconcile.Request]{
-								"k1": sets.New[reconcile.Request](req2),
-								"k2": sets.New[reconcile.Request](req1),
-							},
-						},
-						forgetByRL: map[*fakeRateLimiter][]reconcile.Request{
-							rl1: {req1},
-						},
-					}
+					},
+					forgetByRL: map[*fakeRateLimiter][]reconcile.Request{
+						rl1: {req1},
+					},
+				}
 			},
 		},
 	}
@@ -314,14 +314,14 @@ func TestEncapsulatingRateLimiterRemove(t *testing.T) {
 			reason: "Removing an unknown request must be a no-op: no state change and no Forget calls.",
 			setup: func() (args, want) {
 				return args{
-						req: newReq("req-1"),
-					}, want{
-						state: state{
-							Inner:        map[reconcile.Request]string{},
-							RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{},
-							Requests:     map[string]sets.Set[reconcile.Request]{},
-						},
-					}
+					req: newReq("req-1"),
+				}, want{
+					state: state{
+						Inner:        map[reconcile.Request]string{},
+						RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{},
+						Requests:     map[string]sets.Set[reconcile.Request]{},
+					},
+				}
 			},
 		},
 		"OnlyRequestForKey": {
@@ -330,18 +330,18 @@ func TestEncapsulatingRateLimiterRemove(t *testing.T) {
 				rl1 := &fakeRateLimiter{name: "rl1"}
 				req1 := newReq("req-1")
 				return args{
-						pre: []addOp{{key: "k1", rl: rl1, req: req1}},
-						req: req1,
-					}, want{
-						state: state{
-							Inner:        map[reconcile.Request]string{},
-							RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{},
-							Requests:     map[string]sets.Set[reconcile.Request]{},
-						},
-						forgetByRL: map[*fakeRateLimiter][]reconcile.Request{
-							rl1: {req1},
-						},
-					}
+					pre: []addOp{{key: "k1", rl: rl1, req: req1}},
+					req: req1,
+				}, want{
+					state: state{
+						Inner:        map[reconcile.Request]string{},
+						RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{},
+						Requests:     map[string]sets.Set[reconcile.Request]{},
+					},
+					forgetByRL: map[*fakeRateLimiter][]reconcile.Request{
+						rl1: {req1},
+					},
+				}
 			},
 		},
 		"OneOfMultipleRequests": {
@@ -351,21 +351,21 @@ func TestEncapsulatingRateLimiterRemove(t *testing.T) {
 				req1 := newReq("req-1")
 				req2 := newReq("req-2")
 				return args{
-						pre: []addOp{
-							{key: "k1", rl: rl1, req: req1},
-							{key: "k1", rl: rl1, req: req2},
-						},
-						req: req1,
-					}, want{
-						state: state{
-							Inner:        map[reconcile.Request]string{req2: "k1"},
-							RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{"k1": rl1},
-							Requests:     map[string]sets.Set[reconcile.Request]{"k1": sets.New[reconcile.Request](req2)},
-						},
-						forgetByRL: map[*fakeRateLimiter][]reconcile.Request{
-							rl1: {req1},
-						},
-					}
+					pre: []addOp{
+						{key: "k1", rl: rl1, req: req1},
+						{key: "k1", rl: rl1, req: req2},
+					},
+					req: req1,
+				}, want{
+					state: state{
+						Inner:        map[reconcile.Request]string{req2: "k1"},
+						RateLimiters: map[string]workqueue.TypedRateLimiter[reconcile.Request]{"k1": rl1},
+						Requests:     map[string]sets.Set[reconcile.Request]{"k1": sets.New[reconcile.Request](req2)},
+					},
+					forgetByRL: map[*fakeRateLimiter][]reconcile.Request{
+						rl1: {req1},
+					},
+				}
 			},
 		},
 	}
